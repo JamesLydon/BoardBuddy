@@ -1,0 +1,105 @@
+body {
+    font-family: "Avenir";
+    font-size: 1rem;
+    background: #ccb4b4;
+}
+
+header {
+    background: #454745;
+}
+
+.btn-primary {
+    background: #454745;
+    border-color: #406C39;
+    color: #fff !important;
+}
+
+.btn-primary:hover {
+    background: #8c918c;
+    border-color: #406C39;
+    color: #fff !important;
+}
+
+.navbar-expand-md .navbar-nav .nav-link {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.content {
+    padding: 2rem 1.5rem;
+}
+
+.jumbotron {
+    padding: 1.5rem;
+    background: 0;
+}
+
+.jumbotron img {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.4), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.card-deck .card {
+    margin-bottom: 30px;
+}
+
+.card .card-body {
+    margin-bottom: 0;
+}
+
+.page-link, .page-link:hover {
+    color: #204C19;
+}
+
+.card.adopted {
+    opacity: .25;
+}
+
+.card.blank-card {
+    background: #eee;
+    border: #eee;
+}
+
+.autocomplete {
+  /*the container must be positioned relative:*/
+  position: relative;
+  display: inline-block;
+}
+
+.autocomplete-items {
+  position: absolute;
+  border: 1px solid #d4d4d4;
+  border-bottom: none;
+  border-top: none;
+  z-index: 99;
+  /*position the autocomplete items to be the same width as the container:*/
+  top: 100%;
+  left: 0;
+  right: 0;
+}
+.autocomplete-items div {
+  padding: 10px;
+  cursor: pointer;
+  background-color: #fff;
+  border-bottom: 1px solid #d4d4d4;
+}
+.autocomplete-items div:hover {
+  /*when hovering an item:*/
+  background-color: #e9e9e9;
+}
+.autocomplete-active {
+  /*when navigating through the items using the arrow keys:*/
+  background-color: DodgerBlue !important;
+  color: #ffffff;
+}
+
+.col-centered{
+    float: none;
+    margin: 0 auto;
+}
+
+.center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+}

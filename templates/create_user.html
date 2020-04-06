@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% set active = "Home" %}
+
+{% block title %}
+Login
+{% endblock %}
+
+{% block content %}
+
+<h1>Create User</h1>
+
+<p>
+    Please specify a new username and password below.
+</p>
+<!-- user fills in basic user/username/password fields to submit a call to create_user API to successfully create a new user into the database -->
+<form method="POST" action="/create_user" class="pt-3">
+    <div class="form-group row">
+        <label for="example-text-input" class="col-2 col-form-label">Your Name</label>
+        <div class="col-4">
+            <input class="form-control" type="text" name="name">
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="example-text-input" class="col-2 col-form-label">Username</label>
+        <div class="col-4">
+            <input class="form-control" type="text" name="username">
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="example-text-input" class="col-2 col-form-label">Password</label>
+        <div class="col-4">
+            <input class="form-control" type="password" name="password">
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-2"></div>
+        <div class="col-4">
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+    </div>
+</form>
+
+{% endblock %}

@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% set active = "Play" %}
+
+{% block title %}
+Play a game!
+{% endblock %}
+
+{% block content %}
+
+<section class="jumbotron">
+    <div class="text-center">
+        <h1 class="jumbotron-heading">BoardBuddy</h1>
+        <h3>Choose a game to play by filling out the options below</h3>
+    </div>
+</section>
+<br><br>
+<form>
+    <!-- user fills in fields corresponding to their current boardgame session -->
+    <h3>Number of Players:</h3>
+    <!-- player selection from 1 to 6-->
+    <div id="playersform" class="form-row align-items-center">
+        <div class="col-auto">
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="players" id="players1" value="1">
+                <label class="form-check-label" for="players1">1</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="players" id="players2" value="2">
+                <label class="form-check-label" for="players2">2</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="players" id="players3" value="3">
+                <label class="form-check-label" for="players3">3</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="players" id="players4" value="4">
+                <label class="form-check-label" for="players4">4</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="players" id="players5" value="5">
+                <label class="form-check-label" for="players5">5</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="players" id="players6" value="6">
+                <label class="form-check-label" for="players6">6+</label>
+            </div>
+        </div>
+    </div>
+    <br><br>
+    <h3>Difficulty:</h3>
+    <!-- Difficulty selection from Simple to Complex. User can also optionally choose No Preference which disables the other options -->
+    <p>Want something simple to learn for new players or something complex?</p>
+    <div id="difficultyform" class="form-row align-items-center">
+        <div class="col-auto">
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="difficulty" id="difficulty1" value="1">
+                <label class="form-check-label" for="difficulty1">Simple</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="difficulty" id="difficulty2" value="2">
+                <label class="form-check-label" for="difficulty2">Not too hard</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="difficulty" id="difficulty3" value="3">
+                <label class="form-check-label" for="difficulty3">Complex</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" name="difficulty" id="difficulty4" value="Nopref"
+                       onchange="document.getElementById('difficulty1').disabled = this.checked;document.getElementById('difficulty2').disabled = this.checked;document.getElementById('difficulty3').disabled = this.checked;">
+                <label class="form-check-label" for="difficulty3">No preference</label>
+            </div>
+        </div>
+    </div>
+    <br><br>
+    <h3>Length of Game:</h3>
+    <!-- user chooses duration of game from 1 to 120 minutes. or optionally chooses No Preference which disables the dropdown field-->
+    <p>Approximately how long would you like the game to be?</p>
+    <div id="lengthform" class="form-row align-items-center">
+        <div class="col-auto">
+            <div class="form-check form-check-inline">
+                <select name="length" id="length"></select>
+                <p style="padding-top:14px;margin-left:5px">minutes</p>
+                <input class="form-check-input" style="margin-left:30px" type="checkbox" name="length"
+                       id="lengthnopreference" value="Nopref"
+                       onchange="document.getElementById('length').disabled = this.checked;">
+                <label class="form-check-label" for="difficulty3">No preference</label>
+            </div>
+        </div>
+    </div>
+    <br><br>
+    <div id="submit" class="form-row align-items-center">
+        <!-- submit button to begin the API call to the scoring algorithm -->
+        <div class="col-auto">
+            <div class="row">
+                <button type="button" id="submitbtn" class="btn btn-primary">Give me a game</button>
+            </div>
+            <div class="row">
+                <span style="margin-top: 5px" class="label label-primary" id="givegamelabel" for="submit"></span>
+            </div>
+        </div>
+    </div>
+</form>
+<br><br>
+<section class="jumbotron">
+    <div id="result" class="text-center">
+        <h2><span style="margin-top: 5px" class="label label-primary" id="resultlabel"></span></h2>
+        <div class="row">
+            <img id="resultimage" class="img-fluid center" style="width:100%; max-width:600px;" src="">
+        </div>
+    </div>
+    </div>
+</section>
+<script>
+/* dynamically fill in dropdown options from 1 to 120 */
+$(function() {
+    var $select = $("#length");
+    for (i = 1; i <= 120; i++) {
+        $select.append($('<option></option>').val(i).html(i))
+    }
+});
+
+/* submit button functionality sends API call to scoring algorithm to retrieve the highest scoring game given the user's filled in criteria */
+$("#submitbtn").click(function() {
+    /* get all values from user's filled in fields */
+    document.getElementById("givegamelabel").textContent = "";
+    players = $('input[name=players]:checked', '#playersform').val()
+    if ($('#difficulty4').is(':checked')) {
+        difficulty = "Nopref"
+    } else {
+        difficulty = $('input[name=difficulty]:checked', '#difficultyform').val()
+    }
+    if ($('#lengthnopreference').is(':checked')) {
+        length = "Nopref"
+    } else {
+        length = $("#length option:selected").text();
+    }
+    /* don't call API if some of the fields are null */
+    if (players == null || difficulty == null || length == null) {
+        document.getElementById("givegamelabel").textContent = "Please choose a selection from all fields";
+    } else {
+        /* call scoring algorithm API which returns the highest scored criteria based on the user's requests */
+        $.get("api/score", {
+            players: players,
+            difficulty: difficulty,
+            length: length
+        }, function(data) {
+            if ($.type(data) === "string") {
+                /* tell the user that they need to be logged in to use this functionality */
+                if (data.includes("Error")) {
+                    document.getElementById("givegamelabel").textContent = "You need to login and specify your games under My Boardgames to use the scoring feature";
+                }
+            } else if ($.type(data) === "null") {
+                /* tell the user that they need some games to exist in their user library to use the scoring feature */
+                document.getElementById("givegamelabel").textContent = "You need to specify your games under My Boardgames to use the scoring feature";
+            } else {
+                /* display the highest scored recommended game for the user on the webpage */
+                $resultgamename = (data["name"])
+                $resultgameimage = (data["picture"])
+                document.getElementById("resultlabel").textContent = "We suggest you play " + $resultgamename;
+                $("#resultimage").attr("src", "/img/games/" + $resultgameimage);
+            }
+        });
+    }
+
+})
+</script>
+
+{% endblock %}

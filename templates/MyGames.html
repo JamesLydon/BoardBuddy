@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+{% set active = "MyGames" %}
+
+{% block title %}
+Manage My Games
+{% endblock %}
+
+{% block content %}
+
+<section class="jumbotron">
+    <div class="text-center">
+        <h3>Manage your boardgames or contribute new boardgames</h3>
+    </div>
+</section>
+
+<div class="row">
+    <div class="col-6">
+        <table id="mygamestable" class="table table-hover table-dark">
+        <!-- table used for populating the boardgames the user has saved in their personal game library -->
+            <thead>
+            <tr>
+                <th scope="col"></th>
+                <th scope="col">Name</th>
+                <th scope="col">Player Count</th>
+                <th scope="col">Difficulty</th>
+                <th scope="col">Length</th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+    <div class="col-6">
+        <div class="row">
+            <!-- add game to add a game to library from the full list of games in the system. first the user fills in the dropdown -->
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <button class="btn btn-dark" id="addgamebtn" type="button">Add Game</button>
+                </div>
+                <select id="addgame" class="combobox input form-control">
+                    <option></option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <!-- after filling in the dropdown with a valid game the user clicks the submit game button -->
+            <span class="label label-primary" id="addgamelabel" for="addgame"></span>
+        </div>
+    </div>
+</div>
+
+<script>
+/* arrays populated in later functions */
+var games = [];
+var gamenames = []
+var usergamenames;
+
+/* Load games into array from system's overall game library */
+function loadGames() {
+    var result = [];
+    var scriptUrl = "api/games";
+    $.ajax({
+        url: scriptUrl,
+        type: 'get',
+        async: false,
+        success: function(data) {
+            for (i in data) {
+                games.push(data[i])
+            }
+        }
+    });
+}
+
+/* load just the names of games into an array for use in the game dropdown box */
+function loadGameNames() {
+    loadGames()
+    for (i in games) {
+        name = games[i].name
+        gamenames.push(name)
+    }
+    comboBoxSetup()
+}
+
+$(function() {
+    loadGameNames();
+});
+
+/* Add game submit button. Grab the name value and send to API */
+$("#addgamebtn").click(function() {
+    document.getElementById("addgamelabel").textContent = "";
+    checked = "false"
+    gameinput = $("#addgame").val();
+    if (gameinput) {
+        $.get("api/create_game_user", {
+            gameinput: gameinput
+        }, function(data) {
+            if (data = "success") {
+                checked = "true"
+                /* If successful then display success to the user with a label */
+                document.getElementById("addgamelabel").textContent = "Successfully added";
+                loadUserGames()
+            } else {
+                document.getElementById("addgamelabel").textContent = "Failed to add";
+            }
+        });
+
+        if (checked = "false") {
+            document.getElementById("addgamelabel").textContent = "Failed to add";
+        }
+    } else {
+        document.getElementById("addgamelabel").textContent = "Please select a game";
+    }
+})
+
+/* populate table with games in the user's library. delete the table and rebuild it row by row from usergames */
+function populatemygamestable(data) {
+    deleteButton = '<button type="button" class="btn btn-outline-danger btn-sm">Delete</button>'
+    name = data.name
+    players = data.players
+    difficulty = data.difficulty
+    length = data.length
+    picture = data.picture
+    myHtmlContent = '<td><img style="width:100%; max-width:200px;"  src="/img/games/' + picture + '"></td><td>' + name + '</td><td>' + players + '</td><td>' + difficulty + '</td><td>' + length + '</td><td>' + deleteButton + '</td>'
+    var tableRef = document.getElementById('mygamestable').getElementsByTagName('tbody')[0];
+    var newRow = tableRef.insertRow(tableRef.rows.length);
+    newRow.className = "usergame"
+    newRow.id = name
+    newRow.innerHTML = myHtmlContent;
+}
+
+/* load into array all of those games the user owns in their library */
+function loadUserGames() {
+    $("#mygamestable tbody tr").remove()
+    var result = [];
+    var scriptUrl = "api/usergames";
+    $.ajax({
+        url: scriptUrl,
+        type: 'get',
+        async: false,
+        success: function(data) {
+            uniqdata = [...new Set(data)];
+            for (i in data) {
+                populatemygamestable(uniqdata[i])
+            }
+            addButtonClickEvent()
+        }
+    });
+}
+
+$(function() {
+    loadUserGames();
+});
+
+/* add functionality for buttons in table to be deleted */
+function addButtonClickEvent() {
+    $(".btn-outline-danger").click(function() {
+        var $id = $(this).parent().parent().attr('id')
+        $.get("api/delete_game_user", {
+            gameinput: $id
+        }, function(data) {
+            loadUserGames()
+        });
+    })
+}
+
+/* add functionality for dropdown box */
+function comboBoxSetup() {
+    $.each(gamenames, function(index, value) {
+        $('.combobox').append('<option value="' + value + '">' + value + '</option>');
+    })
+    $('.combobox').combobox();
+    $('.combobox').attr('placeholder', 'Choose a new game to add');
+}
+</script>
+
+
+{% endblock %}

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <!-- basic title applied to every page -->
+    <title>BoardBuddy - {% block title %}{% endblock %}</title>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link href="/course/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/main.css" rel="stylesheet">
+
+    <!-- imports for bootstrap, jquery, etc.-->
+    <script src="/course/lib/jquery/jquery-3.3.1.min.js"></script>
+    <script src="/course/lib/popper/popper.min.js"></script>
+    <script src="/course/lib/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/course/lib/bootstrap/js/bootstrap-combobox.js"></script>
+
+    <!-- cool favicon of dice which represents boardgames -->
+    <link rel="shortcut icon" type="image/png" href="/img/dice.png"/>
+
+</head>
+
+<body>
+
+<header>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <nav class="navbar navbar-expand-md navbar-dark">
+                    <a class="navbar-brand" href="/"><img src="/img/boardbuddy.png" style="max-height: 40px;"></a>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse"
+                            data-target="#navbarSupportedContent"
+                            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <!-- navbar buttons redirect to pages and highlight the current page the user is on-->
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav mr-auto">
+                            <li class="nav-item{% if active == 'Play' %} active{% endif %}">
+                                <a class="nav-link" href="/">Let's Play!</a>
+                            </li>
+                            <li class="nav-item{% if active == 'MyGames' %} active{% endif %}">
+                                <a class="nav-link" href="/MyGames">My Boardgames</a>
+                            </li>
+                            <li class="nav-item{% if active == 'Contribute' %} active{% endif %}">
+                                <a class="nav-link" href="/Contribute">Contribute a Boardgame</a>
+                            </li>
+                        </ul>
+                        <ul class="navbar-nav">
+                            {% if session['user'] %}
+                            <!-- log out / login button functionality-->
+                            <li class="nav-item dropdown{% if active == 'Account' %} active{% endif %}">
+                                <a class="nav-link" href="/logout">Log Out</a>
+                                {% else %}
+                                <a class="nav-link" href="/login">Log In</a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main>
+    <div class="container content">
+        {% block content %}{% endblock %}
+    </div>
+</main>
+
+</body>
+
+</html>

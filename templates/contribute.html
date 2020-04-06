@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+{% set active = "Contribute" %}
+
+{% block title %}
+Contribute a New Boardgame
+{% endblock %}
+
+{% block content %}
+
+<section class="jumbotron">
+    <div class="text-center">
+        <h3>Contribute a new boardgame to BoardBuddy</h3>
+        <p>This will allow yourself and other users to add the game to your personal list of boardgames</p>
+    </div>
+</section>
+
+<div class="container">
+    <div class="row">
+        <div class="col-6">
+            <!-- table used for populating the boardgames the overall system has saved -->
+            <label class="center"><h3>Existing Boardgames</h3></label>
+            <table id="gamestable" class="table table-hover table-dark">
+                <thead>
+                    <!-- table is populated dynamically from javascript functions. games are deleted and added again row by row -->
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Player Count</th>
+                    <th scope="col">Difficulty</th>
+                    <th scope="col">Length</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-6">
+            <!-- form user can fill in to add games to the system's library so that all users can then add the games to their personal game library -->
+            <form method="get" enctype="multipart/form-data" id="myform">
+                <div class="form-group">
+                    <label><h4>Boardgame name</h4></label>
+                    <input type="text" class="form-control" id="gamename"
+                           placeholder="Enter the title of the boardgame">
+                </div>
+                <label><h4>Recommended Players</h4></label><br>
+                <!-- user chooses recommended players ranging from 1 to 6 -->
+                <div id="playersform" class="form-row">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="players" id="players1" value="1">
+                        <label class="form-check-label" for="players1">1</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="players" id="players2" value="2">
+                        <label class="form-check-label" for="players2">2</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="players" id="players3" value="3">
+                        <label class="form-check-label" for="players3">3</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="players" id="players4" value="4">
+                        <label class="form-check-label" for="players4">4</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="players" id="players5" value="5">
+                        <label class="form-check-label" for="players5">5</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="players" id="players6" value="6">
+                        <label class="form-check-label" for="players6">6+</label>
+                    </div>
+                </div>
+                <br>
+                <label><h4>Overall Difficulty</h4></label><br>
+                <!-- user chooses recommended difficulty ranging from simple to complex -->
+                <div id="difficultyform" class="form-row">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="difficulty" id="difficulty1" value="Simple">
+                        <label class="form-check-label" for="difficulty1">Simple</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="difficulty" id="difficulty2" value="Medium">
+                        <label class="form-check-label" for="difficulty2">Not too hard</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="difficulty" id="difficulty3" value="Complex">
+                        <label class="form-check-label" for="difficulty3">Complex</label>
+                    </div>
+                </div>
+                <br>
+                <label><h4>Approximate time to play</h4></label><br>
+                <!-- user chooses recommended average time to play the game from 1 to 120. Dropdown is generated with values dynamically from javascript code below -->
+                <div id="lengthform" class="form-row">
+                    <div class="form-check form-check-inline">
+                        <select name="length" id="length"></select>
+                        <p style="margin-top:14px;margin-left:5px">minutes</p>
+                    </div>
+                </div>
+                <br>
+                <label><h4>Game Image</h4></label><br>
+                <!-- user can upload an image to the system that best represents the boardgame they're uploading -->
+                <div class="custom-file mb-3">
+                    <input type="file" class="custom-file-input" id="customFile" name="filename">
+                    <label class="custom-file-label" for="customFile">Choose file</label>
+                </div>
+                <button type="button" id="contributegamebtn" class="btn btn-primary">Submit</button>
+                <div class="row">
+                    <span class="label label-primary" id="contributelabel"></span>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+/* arrays populated in later functions */
+var games = [];
+var gamenames = []
+var usergamenames;
+
+/* quickly populate dropdown table with values from 1-120 */
+$(function() {
+    var $select = $("#length");
+    for (i = 1; i <= 120; i++) {
+        $select.append($('<option></option>').val(i).html(i))
+    }
+});
+
+/* Submit button for contributing a new game. */
+$("#contributegamebtn").click(function() {
+    checked = "false"
+    /* Grabs all values field by field */
+    document.getElementById("contributelabel").textContent = "";
+    name = $("#gamename").val()
+    players = $('input[name=players]:checked', '#playersform').val()
+    difficulty = $('input[name=difficulty]:checked', '#difficultyform').val()
+    length = $("#length option:selected").text();
+    /* add all values into a FormData variable to send to the backend API layer */
+    fd = new FormData()
+    var files = $('#customFile')[0].files[0]
+    fd.append('file', files)
+    fd.append('players', players)
+    fd.append('difficulty', difficulty)
+    fd.append('length', length)
+    fd.append('name', name)
+    /* don't do anything if fields are sent null */
+    if (name == null || players == null || difficulty == null || length == null || files == null) {
+        document.getElementById("contributelabel").textContent = "Please fill in all fields";
+        checked = "true"
+    } else {
+        $.ajax("api/create_game", {
+            type: 'post',
+            processData: false,
+            contentType: false,
+            async: false,
+            data: fd,
+            success: function() {
+            /* If successful, add label showing the user of success */
+                checked = "true"
+                document.getElementById("contributelabel").textContent = "Successfully added";
+                loadGames()
+
+            }
+        });
+
+    }
+    if (checked == "false") {
+        document.getElementById("contributelabel").textContent = "Failed to add";
+    }
+})
+
+/* handle custom filename input */
+$(".custom-file-input").on("change", function() {
+    var fileName = $(this).val().split("\\").pop();
+    console.log("filename is " + fileName)
+    $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+});
+
+/* Load games into array from system's overall game library */
+function loadGames() {
+    $("#gamestable tbody tr").remove()
+    var result = [];
+    var scriptUrl = "api/games";
+    $.ajax({
+        url: scriptUrl,
+        type: 'get',
+        async: false,
+        success: function(data) {
+            uniqdata = [...new Set(data)];
+            for (i in data) {
+                populategamestable(uniqdata[i])
+            }
+        }
+    });
+}
+
+loadGames()
+
+/* Populate games from loadGames function into table. Delete and recreate each row of the table game by game */
+function populategamestable(data) {
+    name = data.name
+    players = data.players
+    difficulty = data.difficulty
+    length = data.length
+    picture = data.picture
+    myHtmlContent = '<td><img style="width:100%; max-width:200px;" src="/img/games/' + picture + '"></td><td>' + name + '</td><td>' + players + '</td><td>' + difficulty + '</td><td>' + length + '</td>'
+    var tableRef = document.getElementById('gamestable').getElementsByTagName('tbody')[0];
+    var newRow = tableRef.insertRow(tableRef.rows.length);
+    newRow.className = "usergame"
+    newRow.id = name
+    newRow.innerHTML = myHtmlContent;
+}
+</script>
+
+
+{% endblock %}
